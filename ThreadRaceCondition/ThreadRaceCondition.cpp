@@ -4,18 +4,29 @@
 #include <iostream>
 #include <vector>
 #include <thread>
+#include <mutex>
 using namespace std;
 class Wallet
 {
     int mMoney;
+    mutex mMutex;
 public:
     Wallet() : mMoney(0){}
     int getMoney() { return mMoney; }
     void addMoney(int money) {
+ //       mutex.lock();
+        lock_guard<mutex> lockGuard(mMutex);
+        //IN constructor it locks the mutex
         for (int i = 0; i < money; ++i)
         {
+            // If some exception occurs at this point
+            // then destructor of lockGuard will be called
+            // due to stack unwinding.
             mMoney++;
         }
+ //       mutex.unlock();
+        // Once function exits, then destructor of lockGuard Object will be called.
+        // In destructor it unlocks the mutex
     }
 };
 int testMultithreadWallet()
